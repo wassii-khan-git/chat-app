@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import CreateAccount from "./create-account";
 import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import { Users } from "../assets/data";
-import { isAccountCreated } from "../chat.config";
+import { isAccountCreated } from "../config";
 import SingleChatRoom from "./single-chat-room";
 
 const Chat = () => {
