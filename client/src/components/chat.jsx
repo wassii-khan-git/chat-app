@@ -2,10 +2,12 @@ import React, { useState } from "react";
 import CreateAccount from "./create-account";
 import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import { Users } from "../assets/data";
-import { isAccountCreated } from "../config";
 import SingleChatRoom from "./single-chat-room";
+import { useAuth } from "../hooks/auth";
 
 const Chat = () => {
+  // use auth hook
+  const { auth } = useAuth();
   // search term state
   const [searchTerm, setSearchTerm] = React.useState("");
   // eslint-disable-next-line
@@ -66,7 +68,7 @@ const Chat = () => {
   return (
     <div className="p-4 rounded-lg">
       {/* Create an account */}
-      {!isAccountCreated ? (
+      {!auth?.token && !auth?.email ? (
         <CreateAccount />
       ) : (
         <>
