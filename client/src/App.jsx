@@ -2,6 +2,8 @@ import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./pages/home";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Login from "./components/login";
+import ChatLayout from "./components/layouts/chatLayout";
 
 function App() {
   // Create a QueryClient instance
@@ -11,7 +13,22 @@ function App() {
   const router = createBrowserRouter([
     {
       path: "/",
-      element: <Home />,
+      element: <ChatLayout />,
+      children: [
+        {
+          index: true,
+          path: "/login",
+          element: <Login />,
+        },
+        {
+          path: "/signup",
+          element: <CreateAccount />,
+        },
+        {
+          path: "/dashboard",
+          element: <Home />,
+        },
+      ],
     },
   ]);
 
