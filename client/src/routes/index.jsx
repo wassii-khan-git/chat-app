@@ -1,9 +1,58 @@
-import Home from "../pages/home";
+import React, { useEffect, useState, Suspense } from "react";
+import { useRoutes } from "react-router-dom";
+import Layout from "../components/layouts/layout";
+import Chat from "../components/chat";
+import Login from "../components/login";
+import { useAuth } from "../hooks/auth";
+import CreateAccount from "../components/create-account";
 
-// chat routes
-export const ChatRoutes = [
-  {
-    path: "home",
-    element: <Home />,
-  },
-];
+const CustomRoute = () => {
+  const [loading, setLoading] = useState(true);
+  const { auth } = useAuth();
+
+  useEffect(() => {
+    setLoading(false);
+  }, [auth]);
+
+  // Doctor routes
+  const DashboardRoutes = useRoutes([
+    {
+      path: "/",
+      element: <Layout />,
+      children: [
+        {
+          path: "dashboard",
+          element: <Chat />,
+        },
+      ],
+    },
+    { path: "*", element: <h1>Not Found</h1> },
+  ]);
+
+  // Default routes
+  const DefaultRoutes = useRoutes([
+    {
+      path: "/",
+      element: <Layout />,
+      children: [
+        { index: true, element: <Login /> },
+        { path: "login", element: <Login /> },
+        { path: "signup", element: <CreateAccount /> },
+      ],
+    },
+  ]);
+
+  if (loading) {
+    return (
+      <div>
+        <h1>Loading...</h1>
+      </div>
+    );
+  }
+  return (
+    <Suspense fallback={<h1>Loading...</h1>}>
+      {auth?.token ? DashboardRoutes : DefaultRoutes}
+    </Suspense>
+  );
+};
+export default CustomRoute;
