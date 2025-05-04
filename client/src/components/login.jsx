@@ -2,17 +2,18 @@ import React from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { CreateAccountApi } from "../services/auth/auth.services";
+import { LoginApi } from "../services/auth/auth.services";
 import { ToastContainer, toast } from "react-toastify";
-// Create account
+
+// Login account
 const Login = () => {
   // toast alert
   const notify = (message, flag) => {
     flag === true ? toast.success(message) : toast.error(message);
   };
   // create account mutation
-  const { mutate: createAccount, isPending } = useMutation({
-    mutationFn: (values) => CreateAccountApi(values),
+  const { mutate: loginAccount, isPending } = useMutation({
+    mutationFn: (values) => LoginApi(values),
     onSuccess: (response) => {
       console.log("response: ", response);
       if (response.success) {
@@ -29,8 +30,8 @@ const Login = () => {
   return (
     <Formik
       initialValues={{
-        username: "",
         email: "",
+        password: "",
       }}
       validationSchema={Yup.object({
         username: Yup.string().required("username is required"),
@@ -39,7 +40,7 @@ const Login = () => {
           .required("email is required"),
       })}
       onSubmit={(values, { resetForm }) => {
-        createAccount(values, {
+        loginAccount(values, {
           onSuccess: () => {
             resetForm();
           },
@@ -76,23 +77,23 @@ const Login = () => {
                 </div>
               )}
             </div>
-            {/* Username input */}
+            {/* password input */}
             <div className="w-full mb-4">
               <input
                 type="text"
-                name="username"
-                id="username"
-                placeholder="Enter username"
+                name="password"
+                id="password"
+                placeholder="Enter password"
                 className={`${
-                  touched.username && errors.username && "border-red-500"
+                  touched.password && errors.password && "border-red-500"
                 } border border-gray-300 rounded-md px-3 py-2 w-full`}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                value={values.username}
+                value={values.password}
               />
-              {touched.username && errors.username && (
+              {touched.password && errors.password && (
                 <div className="text-left capitalize mt-2 text-sm text-red-500">
-                  {errors.username}
+                  {errors.password}
                 </div>
               )}
             </div>
@@ -103,7 +104,7 @@ const Login = () => {
                 disabled={isPending}
                 className="bg-indigo-500 text-white px-3 py-2 rounded-md w-full hover:bg-indigo-600 transition duration-200 ease-in-out"
               >
-                {isPending ? "Loading..." : "Create Account"}
+                {isPending ? "Loading..." : "Login"}
               </button>
             </div>
           </div>
