@@ -7,7 +7,10 @@ const Navbar = () => {
   // state for profile dropdown
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   // nav items
-  const navItems = [{ name: "Home", to: "/" }];
+  const navItems = [
+    { name: "Signup", to: "/signup" },
+    { name: "Login", to: "/login" },
+  ];
   // handle logout
   const handleLogout = () => {
     console.log("User logged out");
