@@ -1,5 +1,5 @@
 import { UserModel } from "../../models/user-model.js";
-import { GenerateHash, GenerateToken } from "../../utils/helper.js";
+import { GenerateHash, GenerateToken, VerifyHash } from "../../utils/helper.js";
 
 // create an account
 export const CreateAccount = async (req, res) => {
@@ -29,11 +29,14 @@ export const CreateAccount = async (req, res) => {
       });
     }
 
+    // generate hash
+    const hashedPassword = await GenerateHash(password);
+
     // store it in the db
     const newUser = await UserModel.create({
       username,
       email,
-      password,
+      password: hashedPassword,
     });
 
     // return the response
@@ -74,24 +77,32 @@ export const Login = async (req, res) => {
       });
     }
 
-    // generate hash
-    const hashedPassword = await GenerateHash(password);
+    // compare password
+    const isPasswordVerified = await VerifyHash(
+      password,
+      isUserExists.password
+    );
+
+    if (!isPasswordVerified) {
+      return res.status(403).json({
+        success: false,
+        message: "Invalid! credentials",
+      });
+    }
 
     // generate token
     const token = await GenerateToken(isUserExists._id);
 
-    // store it in the db
-    const newUser = await UserModel.create({
-      email,
-      password: hashedPassword,
-      token,
-    });
+    // assign the token
+    isUserExists.token = token;
+
+    await isUserExists.save();
 
     // return the response
     return res.status(200).json({
       success: true,
       message: "Logged in successfully",
-      user: newUser,
+      user: isUserExists,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
