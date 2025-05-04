@@ -14,7 +14,7 @@ export const VerifyToken = async (token) => {
 
 // hash password
 export const GenerateHash = async (password) => {
-  return bcrypt.hash(password, salt);
+  return bcrypt.hash(password, 10);
 };
 
 // verify hash
