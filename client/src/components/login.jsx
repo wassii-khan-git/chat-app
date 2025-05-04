@@ -4,9 +4,16 @@ import { Formik } from "formik";
 import * as Yup from "yup";
 import { LoginApi } from "../services/auth/auth.services";
 import { ToastContainer, toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/auth";
 
 // Login account
 const Login = () => {
+  const { auth, setAuth } = useAuth();
+  console.log("auth", auth);
+
+  // navigate
+  const navigate = useNavigate();
   // toast alert
   const notify = (message, flag) => {
     flag === true ? toast.success(message) : toast.error(message);
@@ -17,8 +24,13 @@ const Login = () => {
     onSuccess: (response) => {
       console.log("response: ", response);
       if (response.success) {
-        localStorage.setItem("auth", JSON.stringify(response));
+        setAuth({ user: response?.user, token: response?.user?.token });
+        // notify
         notify(response.message, true);
+        // navigate
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 3000);
       }
     },
     onError: (error) => {
@@ -34,10 +46,10 @@ const Login = () => {
         password: "",
       }}
       validationSchema={Yup.object({
-        username: Yup.string().required("username is required"),
         email: Yup.string()
           .email("Invalid email format")
           .required("email is required"),
+        password: Yup.string().required("password is required"),
       })}
       onSubmit={(values, { resetForm }) => {
         loginAccount(values, {
@@ -80,7 +92,7 @@ const Login = () => {
             {/* password input */}
             <div className="w-full mb-4">
               <input
-                type="text"
+                type="password"
                 name="password"
                 id="password"
                 placeholder="Enter password"
