@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import { CreateAccountApi } from "../services/auth/auth.services";
 import { ToastContainer, toast } from "react-toastify";
 import Login from "./login";
+import { Link } from "react-router-dom";
 // Create account
 const CreateAccount = () => {
   const [isAccountCreated, setisAccountCreated] = useState(null);
@@ -108,7 +109,7 @@ const CreateAccount = () => {
                 {/* Password input */}
                 <div className="w-full mb-4">
                   <input
-                    type="text"
+                    type="password"
                     name="password"
                     id="password"
                     placeholder="Enter password"
