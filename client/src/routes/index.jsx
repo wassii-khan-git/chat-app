@@ -40,6 +40,7 @@ const CustomRoute = () => {
         { path: "signup", element: <CreateAccount /> },
       ],
     },
+    { path: "*", element: <h1>Not Found</h1> },
   ]);
 
   if (loading) {
