@@ -1,17 +1,16 @@
 import "./App.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Home from "./pages/home";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import CustomRoute from "./routes";
 
 function App() {
-  // Router setup
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: <Home />,
-    },
-  ]);
-  // RouterProvider setup
-  return <RouterProvider router={router} />;
+  const queryClient = new QueryClient();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <CustomRoute />
+    </QueryClientProvider>
+  );
 }
 
 export default App;
