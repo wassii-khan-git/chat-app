@@ -1,13 +1,26 @@
 import { LeftOutlined } from "@ant-design/icons";
-import React from "react";
+import React, { useState } from "react";
 
-const SingleChatRoom = ({ roomInfo, handleRoomCreation }) => {
+const SingleChatRoom = ({
+  roomInfo,
+  handleRoomCreation,
+  handleSendMessage,
+  messages,
+}) => {
+  console.log("room info", roomInfo);
+
+  // input message state
+  const [inputMessage, setInputMessage] = useState("");
+  // my messages
+  const [myMessages, setMyMessages] = useState([]);
   return (
     <div className="w-full md:w-3/4 bg-white rounded-xl shadow-lg overflow-hidden">
       {/* Chat Header */}
       <div className="px-6 py-3 bg-indigo-500 flex items-center justify-between">
         <div>
-          <h2 className="text-md font-semibold text-white">{roomInfo.name}</h2>
+          <h2 className="text-md font-semibold text-white ">
+            {roomInfo?.members?.[0].username}
+          </h2>
           <p className="text-indigo-100 text-sm mt-1">Online</p>
         </div>
         <div className="flex gap-4 text-indigo-100">
@@ -36,29 +49,36 @@ const SingleChatRoom = ({ roomInfo, handleRoomCreation }) => {
       <div className="bg-gray-500 h-[400px] overflow-y-auto p-4 bg-gradient-to-b from-indigo-50 to-gray-50">
         <h5 className="mb-5 ">
           <span className="bg-gray-300 text-[12px] font-medium px-4 py-2 rounded-md">
-            Room Created By {roomInfo.name}
+            Room Created By {roomInfo?.name}
           </span>
         </h5>
         {/* Receiver Message */}
-        <div className="flex items-start gap-3">
-          <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-            <span className="text-sm font-medium text-gray-600">JD</span>
+        {messages.map((item, index = 1) => (
+          <div className="flex items-start gap-3" key={index}>
+            <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+              <span className="text-sm font-medium text-gray-600">
+                {item.sender}
+              </span>
+            </div>
+            <div className="max-w-[70%] bg-white rounded-xl p-3 shadow-sm border border-gray-100">
+              <p className="text-gray-700">{item.content}</p>
+              <span className="text-xs text-gray-400 mt-1 block">
+                {item.date}
+              </span>
+            </div>
           </div>
-          <div className="max-w-[70%] bg-white rounded-xl p-3 shadow-sm border border-gray-100">
-            <p className="text-gray-700">
-              Hello, I'm looking for help with my recent order.
-            </p>
-            <span className="text-xs text-gray-400 mt-1 block">10:42 AM</span>
-          </div>
-        </div>
+        ))}
 
-        {/* Sender Message */}
-        <div className="flex justify-end">
-          <div className="max-w-[70%] bg-indigo-500 text-white rounded-xl p-3 shadow-sm">
-            <p>Of course! Could you share your order ID?</p>
-            <span className="text-xs text-indigo-100 mt-1 block">10:43 AM</span>
+        {myMessages.map((item, index = 1) => (
+          <div className="flex justify-end mt-2" key={index}>
+            <div className="max-w-[70%] bg-indigo-500 text-white rounded-xl p-3 shadow-sm">
+              <p>{item}</p>
+              <span className="text-xs text-indigo-100 mt-1 block">
+                10:43 AM
+              </span>
+            </div>
           </div>
-        </div>
+        ))}
       </div>
 
       {/* Message Input */}
@@ -66,10 +86,19 @@ const SingleChatRoom = ({ roomInfo, handleRoomCreation }) => {
         <div className="flex gap-2">
           <input
             type="text"
+            value={inputMessage}
             placeholder="Type your message..."
             className="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            onChange={(e) => setInputMessage(e.target.value)}
           />
-          <button className="px-5 py-2 bg-indigo-500 hover:bg-indigo-700 text-white rounded-xl transition-colors duration-200">
+          <button
+            onClick={() => {
+              handleSendMessage(inputMessage);
+              setMyMessages((prev) => [...prev, inputMessage]);
+              setInputMessage("");
+            }}
+            className="px-5 py-2 bg-indigo-500 hover:bg-indigo-700 text-white rounded-xl transition-colors duration-200"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-5 w-5"

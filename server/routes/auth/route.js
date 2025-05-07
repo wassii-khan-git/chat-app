@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  AllUsers,
   CreateAccount,
   Login,
 } from "../../controllers/auth/auth-controller.js";
@@ -11,10 +12,7 @@ const router = express.Router();
 router.post("/create-account", CreateAccount);
 // login
 router.post("/login", Login);
-
-// create all users
-router.get("/all-users", VerifyUserToken, (req, res) => {
-  res.status(200).json({ message: "everything is fine" });
-});
+// all users
+router.get("/all-users", VerifyUserToken, AllUsers);
 
 export default router;

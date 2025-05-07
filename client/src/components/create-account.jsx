@@ -3,17 +3,14 @@ import { useMutation } from "@tanstack/react-query";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { CreateAccountApi } from "../services/auth/auth.services";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import Login from "./login";
 import { Link } from "react-router-dom";
+import { notify } from "../utils/helper";
 // Create account
 const CreateAccount = () => {
   const [isAccountCreated, setisAccountCreated] = useState(null);
 
-  // toast alert
-  const notify = (message, flag) => {
-    flag === true ? toast.success(message) : toast.error(message);
-  };
   // create account mutation
   const { mutate: createAccount, isPending } = useMutation({
     mutationFn: (values) => CreateAccountApi(values),

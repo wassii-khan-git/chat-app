@@ -108,3 +108,26 @@ export const Login = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// search users
+export const AllUsers = async (req, res) => {
+  try {
+    const { searchTerm } = req.query;
+    console.log("searchTerm", searchTerm);
+    // if value exists
+    let users;
+    if (searchTerm) {
+      const re = RegExp(searchTerm, "i");
+      users = await UserModel.find({
+        $or: [{ email: re }, { username: re }],
+      }).select("-token -password -__v"); // exclude
+    } else {
+      users = await UserModel.find().select("-token -password -__v"); // exlude
+    }
+
+    return res.status(200).json({ success: true, data: users });
+  } catch (error) {
+    console.log("Error");
+    return res.status(500).json({ success: false });
+  }
+};

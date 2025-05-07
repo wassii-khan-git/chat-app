@@ -5,7 +5,6 @@ const UserSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      unique: true,
     },
     email: {
       type: String,
@@ -23,11 +22,13 @@ const UserSchema = new mongoose.Schema(
     },
     token: {
       type: String,
-      unique: true,
     },
   },
   { timestamps: true }
 );
+
+// create a compound text index on username + email
+UserSchema.index({ username: "text", email: "text" });
 
 export const UserModel =
   mongoose.models.users || mongoose.model("users", UserSchema);

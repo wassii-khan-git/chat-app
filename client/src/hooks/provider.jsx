@@ -7,6 +7,7 @@ export const AuthProvider = ({ children }) => {
     user: {},
     token: "",
   });
+
   // effect to get the info from the localstorage
   useEffect(() => {
     const authData = JSON.parse(localStorage.getItem("auth"));

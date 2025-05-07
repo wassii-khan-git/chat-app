@@ -1,9 +1,12 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/auth";
 
 const Navbar = () => {
+  // auth
   const { auth, logout } = useAuth();
+  // navigate
+  const navigate = useNavigate();
   // state for mobile menu
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   // state for profile dropdown
@@ -17,6 +20,7 @@ const Navbar = () => {
   const handleLogout = () => {
     console.log("User logged out");
     logout();
+    navigate("/login");
   };
 
   console.log("auth", auth);
@@ -95,6 +99,9 @@ const Navbar = () => {
             </div>
           </div>
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            <label className="text-white mr-4 font-bold">
+              {auth?.user?.username}
+            </label>
             {auth?.token && (
               <button
                 type="button"
