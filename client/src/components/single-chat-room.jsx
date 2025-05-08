@@ -7,7 +7,7 @@ const SingleChatRoom = ({
   handleSendMessage,
   messages,
 }) => {
-  console.log("room info", roomInfo);
+  console.log("room info in single chat", roomInfo);
 
   // input message state
   const [inputMessage, setInputMessage] = useState("");
@@ -19,7 +19,7 @@ const SingleChatRoom = ({
       <div className="px-6 py-3 bg-indigo-500 flex items-center justify-between">
         <div>
           <h2 className="text-md font-semibold text-white ">
-            {roomInfo?.members?.[0].username}
+            {roomInfo?.members?.[0].username || roomInfo.name}
           </h2>
           <p className="text-indigo-100 text-sm mt-1">Online</p>
         </div>
@@ -57,7 +57,7 @@ const SingleChatRoom = ({
           <div className="flex items-start gap-3" key={index}>
             <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
               <span className="text-sm font-medium text-gray-600">
-                {item.sender}
+                {item.sender || item.content}
               </span>
             </div>
             <div className="max-w-[70%] bg-white rounded-xl p-3 shadow-sm border border-gray-100">
