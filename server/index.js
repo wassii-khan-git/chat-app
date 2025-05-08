@@ -23,6 +23,8 @@ app.use(express.json());
 
 DatabaseConnection();
 
+let users = {};
+
 // Socket handlers
 io.on("connection", (socket) => {
   console.log("⚡ A user connected:", socket.id);
@@ -32,14 +34,20 @@ io.on("connection", (socket) => {
     console.log("room id received in the server: ", roomId);
     // join the room
     socket.join(roomId);
+    users[roomId];
   });
 
   // handle private chat
+  // Replace the existing private_message handler with:
   socket.on("private_message", ({ roomId, sender, content, date }) => {
-    console.log("room id received in the server ", content);
+    console.log("Message received in room:", roomId, "Content:", content);
 
-    // send it to that user
-    io.to(roomId).emit("private_message", { sender, content, date });
+    // Broadcast the message to ALL clients in the room (including sender)
+    io.to(roomId).emit("private_message", {
+      sender,
+      content, // Fixed: was using users.content incorrectly
+      date,
+    });
   });
 
   socket.on("disconnect", () => {
