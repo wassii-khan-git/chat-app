@@ -9,3 +9,6 @@ export const PORT_NUMBER = process.env.PORT_NUMBER || 5000;
 
 // JWT SECRET
 export const JWT_SECRET = process.env.JWT_SECRET;
+
+// client request URL
+export const ClientURL = "http://localhost:5173";

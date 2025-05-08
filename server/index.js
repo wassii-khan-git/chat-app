@@ -1,30 +1,60 @@
-// imports
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-
-// custom
-import routes from "./routes/index.js";
-import DatabaseConnection from "./db/connection.js";
+import http from "http";
+import { Server } from "socket.io";
+import router from "./routes/index.js";
 import { PORT_NUMBER } from "./config/config.js";
-
-// dotenv config
+import DatabaseConnection from "./db/connection.js";
 dotenv.config();
-// app
-const app = express();
 
-// middleware
+const app = express();
+const server = http.createServer(app);
+// Allow your React app at port 5173 to connect
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+  },
+});
+
 app.use(cors());
 app.use(express.json());
-// Database Connection
+// If you need auth on your WebSocket, do it here:
+
 DatabaseConnection();
-// routes
-app.use("/v1/api", routes);
-// other routes
-app.get("/", (req, res) => {
-  res.status(200).send("<h1>Server is healthy</h1>");
+
+// Socket handlers
+io.on("connection", (socket) => {
+  console.log("⚡ A user connected:", socket.id);
+
+  // listen for the event
+  socket.on("join_room", ({ roomId }) => {
+    console.log("room id received in the server: ", roomId);
+    // join the room
+    socket.join(roomId);
+  });
+
+  // handle private chat
+  socket.on("private_message", ({ roomId, sender, content, date }) => {
+    console.log("room id received in the server ", content);
+
+    // send it to that user
+    io.to(roomId).emit("private_message", { sender, content, date });
+  });
+
+  socket.on("disconnect", () => {
+    console.log("❌ User disconnected:", socket.id);
+  });
 });
-// listen
-app.listen(PORT_NUMBER, () => {
+
+// HTTP routes still work
+app.get("/", (req, res) => {
+  res.send("<h1>Server is healthy</h1>");
+});
+
+// Use your existing routes:
+app.use("/v1/api", router);
+
+server.listen(PORT_NUMBER, () => {
   console.log(`Server is running on port ${PORT_NUMBER}`);
 });

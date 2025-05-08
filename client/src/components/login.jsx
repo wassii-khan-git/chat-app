@@ -3,9 +3,10 @@ import { useMutation } from "@tanstack/react-query";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { LoginApi } from "../services/auth/auth.services";
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/auth";
+import { notify } from "../utils/helper";
 
 // Login account
 const Login = () => {
@@ -14,10 +15,7 @@ const Login = () => {
 
   // navigate
   const navigate = useNavigate();
-  // toast alert
-  const notify = (message, flag) => {
-    flag === true ? toast.success(message) : toast.error(message);
-  };
+
   // create account mutation
   const { mutate: loginAccount, isPending } = useMutation({
     mutationFn: (values) => LoginApi(values),
@@ -42,8 +40,8 @@ const Login = () => {
   return (
     <Formik
       initialValues={{
-        email: "",
-        password: "",
+        email: "john@gmail.com",
+        password: "123456",
       }}
       validationSchema={Yup.object({
         email: Yup.string()
