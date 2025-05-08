@@ -64,11 +64,11 @@ const Chat = () => {
 
       // handle room creation info
       setUsersData((prev) => [
-        response?.data,
+        response?.data?.[0],
         ...prev.filter((item) => item.id !== response?.data?.ownerId),
       ]);
 
-      setChatOpenInfo(response?.data);
+      setChatOpenInfo(response?.data?.[0]);
 
       // setUsersData([]);
       setSearchTerm("");
@@ -90,12 +90,12 @@ const Chat = () => {
   };
   // handle user click
   const handleUserClick = async (user) => {
-    const roomId = user.id;
+    const roomId = user._id;
     // roominfo
     const id = Math.floor(Math.random() * 1000); // Generates a random number between 0 and 999
     const roomInfo = {
       name: auth?.user?.username + "_room" + id,
-      members: [user._id, auth.user._id],
+      members: [user._id],
       ownerId: auth?.user?._id,
     };
     console.log("I am room info: ", roomInfo);
@@ -136,15 +136,15 @@ const Chat = () => {
 
     // send this message to that room
     socketRef.current.emit("private_message", {
-      roomId: roomId || "",
+      roomId: roomId,
       sender: auth.user._id,
       content: message,
       date: Date.now(),
     });
   };
 
+  // Update your socket listener useEffect:
   useEffect(() => {
-    // point to the exact port your server is listening on
     socketRef.current = io("http://localhost:8080");
 
     // Fired when the socket is connected
@@ -152,20 +152,22 @@ const Chat = () => {
       console.log("✅ Connected! Socket id:", socketRef.current.id);
     });
 
-    // Listen for our custom "msg" event
-    socketRef.current.on("private_message", (msg) => {
-      console.log("📥 msg from server:", msg);
-      if (msg.sender !== auth.user._id) {
-        setMessages((prev) => [...prev, msg]);
-      }
-    });
+    const handleIncomingMessage = (msg) => {
+      setMessages((prev) => {
+        // Filter out pending messages that are now confirmed
+        const filtered = prev.filter((m) => m.status !== "pending");
+        return [...filtered, { ...msg, status: "delivered" }];
+      });
+    };
+
+    socketRef.current.on("private_message", handleIncomingMessage);
 
     return () => {
+      socketRef.current.off("private_message", handleIncomingMessage);
       socketRef.current.disconnect();
     };
-  }, []);
+  }, [auth.user._id]); // Add dependencies
 
-  // get all the users
   useEffect(() => {
     if (!searchTerm) {
       return;
@@ -187,9 +189,9 @@ const Chat = () => {
     return () => clearTimeout(getUsersData);
   }, [searchTerm]);
 
-  // console.log("messages with mine, ", messages);
+  console.log("messages with mine, ", messages);
   // console.log("search term", searchTerm);
-  console.log("user data", usersData);
+  console.log("user data in chat", usersData);
   // console.log("auth", auth);
 
   return (
@@ -227,7 +229,7 @@ const Chat = () => {
                 </div>
                 {/* name */}
                 <h2 className="mt-1">
-                  {item.username || item.members?.[0]?.username}
+                  {item?.username || item?.members?.[0]?.username}
                 </h2>
               </div>
               <div className="mr-3 transition-all ease-in-out duration-300 hover:bg-gray-200 rounded-full px-2 py-1 cursor-pointer">
