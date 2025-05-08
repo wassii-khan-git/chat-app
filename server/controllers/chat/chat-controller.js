@@ -1,5 +1,5 @@
 import { RoomModel } from "../../models/room-model.js";
-
+import { UserModel } from "../../models/user-model.js";
 // create chat rooms
 export const CreateRoom = async (req, res) => {
   try {
@@ -54,6 +54,8 @@ export const GetRoomById = async (req, res) => {
   try {
     // get the id
     const { id } = req.params;
+    // get the user id
+    const userId = req.userId;
 
     // check the id
     if (!id) {
@@ -63,7 +65,9 @@ export const GetRoomById = async (req, res) => {
     }
 
     // find the members id and popluate the users in the members too
-    const rooms = await RoomModel.find({ members: id }).populate({
+    const rooms = await RoomModel.find({
+      $or: [{ members: id }, { ownerId: id }],
+    }).populate({
       path: "members",
       select: "username email _id",
     });
@@ -73,6 +77,19 @@ export const GetRoomById = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "Room doenot exists" });
+    }
+
+    // check for the ambiguity
+    const result =
+      rooms.map((item) => item.members)[0][0]._id.toString() ===
+      userId.toString();
+
+    if (result) {
+      const ownerId = rooms?.[0].ownerId;
+      const ownerInfo = await UserModel.findOne({ _id: ownerId }).select(
+        "-password -token -createdAt -updatedAt -__v"
+      );
+      rooms[0].members = ownerInfo;
     }
 
     // return the response
