@@ -3,7 +3,7 @@ import React, { useState } from "react";
 
 const SingleChatRoom = ({
   roomInfo,
-  handleRoomCreation,
+  LeaveRoom,
   handleSendMessage,
   messages,
 }) => {
@@ -14,7 +14,7 @@ const SingleChatRoom = ({
   // my messages
   const [myMessages, setMyMessages] = useState([]);
   return (
-    <div className="w-full md:w-3/4 bg-white rounded-xl shadow-lg overflow-hidden">
+    <div className="w-full bg-white rounded-xl shadow-lg overflow-hidden">
       {/* Chat Header */}
       <div className="px-6 py-3 bg-indigo-500 flex items-center justify-between">
         <div>
@@ -24,7 +24,10 @@ const SingleChatRoom = ({
           <p className="text-indigo-100 text-sm mt-1">Online</p>
         </div>
         <div className="flex gap-4 text-indigo-100">
-          <h2 className="cursor-pointer" onClick={handleRoomCreation}>
+          <h2
+            className="cursor-pointer"
+            onClick={() => LeaveRoom(roomInfo._id)}
+          >
             <LeftOutlined className="mr-3 font-bold" />
             Go Back
           </h2>
@@ -52,29 +55,26 @@ const SingleChatRoom = ({
             Room Created By {roomInfo?.name}
           </span>
         </h5>
-        {/* Receiver Message */}
-        {messages.map((item, index = 1) => (
-          <div className="flex items-start gap-3" key={index}>
-            <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-              <span className="text-sm font-medium text-gray-600">
-                {item.sender || item.content}
-              </span>
-            </div>
-            <div className="max-w-[70%] bg-white rounded-xl p-3 shadow-sm border border-gray-100">
-              <p className="text-gray-700">{item.content}</p>
-              <span className="text-xs text-gray-400 mt-1 block">
-                {item.date}
-              </span>
-            </div>
-          </div>
-        ))}
 
+        {/* Sender */}
         {myMessages.map((item, index = 1) => (
           <div className="flex justify-end mt-2" key={index}>
             <div className="max-w-[70%] bg-indigo-500 text-white rounded-xl p-3 shadow-sm">
               <p>{item}</p>
               <span className="text-xs text-indigo-100 mt-1 block">
                 10:43 AM
+              </span>
+            </div>
+          </div>
+        ))}
+
+        {/* Receiver Message */}
+        {messages.map((item, index = 1) => (
+          <div className="flex justify-start mt-2" key={index}>
+            <div className="max-w-[70%] bg-emerald-500 text-white rounded-xl p-3 shadow-sm">
+              <p>{item.message}</p>
+              <span className="text-xs text-indigo-100 mt-1 block">
+                {new Date(item.date).toLocaleTimeString()}
               </span>
             </div>
           </div>
@@ -93,7 +93,7 @@ const SingleChatRoom = ({
           />
           <button
             onClick={() => {
-              handleSendMessage(inputMessage);
+              handleSendMessage(inputMessage, roomInfo._id);
               setMyMessages((prev) => [...prev, inputMessage]);
               setInputMessage("");
             }}
