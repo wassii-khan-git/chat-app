@@ -15,6 +15,7 @@ const io = new Server(server, {
   cors: {
     origin: "http://localhost:5173",
   },
+  connectionStateRecovery: {},
 });
 
 app.use(cors());
@@ -23,35 +24,27 @@ app.use(express.json());
 
 DatabaseConnection();
 
-let users = {};
-
 // Socket handlers
 io.on("connection", (socket) => {
-  console.log("⚡ A user connected:", socket.id);
+  console.log("User connected:", socket.id);
 
-  // listen for the event
   socket.on("join_room", ({ roomId }) => {
-    console.log("room id received in the server: ", roomId);
-    // join the room
     socket.join(roomId);
-    users[roomId];
+    console.log(`${socket.id} joined roomId ${roomId}`);
   });
 
-  // handle private chat
-  // Replace the existing private_message handler with:
-  socket.on("private_message", ({ roomId, sender, content, date }) => {
-    console.log("Message received in room:", roomId, "Content:", content);
+  socket.on("leave_room", ({ roomId }) => {
+    console.log(`${socket.id} left the room`, roomId);
+    socket.leave(roomId);
+  });
 
-    // Broadcast the message to ALL clients in the room (including sender)
-    io.to(roomId).emit("private_message", {
-      sender,
-      content, // Fixed: was using users.content incorrectly
-      date,
-    });
+  socket.on("chat", ({ roomId, message, sender, date }) => {
+    console.log(`roomId ${roomId} msg: ${message}`);
+    io.to(roomId).emit("chat", { message, sender, date });
   });
 
   socket.on("disconnect", () => {
-    console.log("❌ User disconnected:", socket.id);
+    console.log("User disconnected:", socket.id);
   });
 });
 
