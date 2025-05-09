@@ -12,10 +12,10 @@ import { useQuery } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
 import { notify } from "../utils/helper";
 
+const socket = io("http://localhost:8080");
+
 // Chat
 const Chat = () => {
-  // socket ref
-  const socketRef = useRef(null);
   // auth
   const { auth } = useAuth();
   // search term
@@ -56,7 +56,7 @@ const Chat = () => {
       console.log("room create response:", response);
 
       // join the room
-      socketRef.current.emit("join_room", { roomId });
+      socket.emit("join_room", { roomId });
 
       setIsNewRoom(true);
 
@@ -105,7 +105,7 @@ const Chat = () => {
     }
     // else open the chat
     // join the room
-    socketRef.current.emit("join_room", { roomId });
+    socket.emit("join_room", { roomId });
 
     setIsNewRoom(true);
 
@@ -123,8 +123,8 @@ const Chat = () => {
   };
 
   // handle send message
-  const handleSendMessage = (message) => {
-    // console.log(message);
+  const handleSendMessage = (message, roomID) => {
+    console.log(message);
 
     // const obj = {
     //   roomId: currentRoomId,
@@ -135,38 +135,31 @@ const Chat = () => {
     // console.log(obj);
 
     // send this message to that room
-    socketRef.current.emit("private_message", {
-      roomId: roomId,
+    socket.emit("chat", {
+      roomId: roomID,
+      message,
       sender: auth.user._id,
-      content: message,
       date: Date.now(),
     });
   };
 
-  // Update your socket listener useEffect:
-  useEffect(() => {
-    socketRef.current = io("http://localhost:8080");
+  const LeaveRoom = (roomId) => {
+    // leave the room
+    socket.emit("leave_room", { roomId });
+    // close the chat
+    setIsNewRoom(false);
+  };
 
-    // Fired when the socket is connected
-    socketRef.current.on("connect", () => {
-      console.log("✅ Connected! Socket id:", socketRef.current.id);
+  useEffect(() => {
+    socket.on("chat", ({ message, sender, date }) => {
+      console.log("messages from server", message);
+      if (sender !== auth.user._id) {
+        setMessages((prev) => [...prev, { message, sender, date }]);
+      }
     });
 
-    const handleIncomingMessage = (msg) => {
-      setMessages((prev) => {
-        // Filter out pending messages that are now confirmed
-        const filtered = prev.filter((m) => m.status !== "pending");
-        return [...filtered, { ...msg, status: "delivered" }];
-      });
-    };
-
-    socketRef.current.on("private_message", handleIncomingMessage);
-
-    return () => {
-      socketRef.current.off("private_message", handleIncomingMessage);
-      socketRef.current.disconnect();
-    };
-  }, [auth.user._id]); // Add dependencies
+    return () => socket.off("chat");
+  }, []);
 
   useEffect(() => {
     if (!searchTerm) {
@@ -243,6 +236,7 @@ const Chat = () => {
             {/* chat messages */}
             <SingleChatRoom
               roomInfo={chatOpenInfo}
+              LeaveRoom={LeaveRoom}
               messages={messages}
               handleSendMessage={handleSendMessage}
             />
