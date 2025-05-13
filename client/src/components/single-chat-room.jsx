@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { LeftOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks";
-import { ACCENT_COLOR } from "../config";
+import { ACCENT_COLOR } from "./styles/index";
 
 const SingleChatRoom = ({
   roomInfo,
