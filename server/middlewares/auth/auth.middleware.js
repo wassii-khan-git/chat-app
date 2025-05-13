@@ -4,8 +4,6 @@ import { VerifyToken } from "../../utils/helper.js";
 export const VerifyUserToken = async (req, res, next) => {
   try {
     // get the token
-    console.log("req.haeders", req.header);
-
     const rawInfo = req.header("Authorization");
     const token = rawInfo.split(" ")[1];
     if (!token) {
