@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css"; // Import default Toastify CSS
 import Login from "./login"; // Assuming Login component is in the same directory or correct path
 import { Link } from "react-router-dom";
 import { notify } from "../utils/helper"; // Assuming correct path
-import { ACCENT_COLOR } from "../config";
+import { ACCENT_COLOR } from "./styles/index";
 
 // Define a consistent accent color (same as Login if desired)
 const CreateAccount = () => {

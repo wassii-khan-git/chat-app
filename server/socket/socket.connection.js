@@ -42,10 +42,7 @@ const SocketInit = (io) => {
 
     // message seen
     socket.on("message_status", async ({ chatIds, roomId }) => {
-      console.log(chatIds);
-      console.log(roomId);
       const result = await UpdateMessageStatus(chatIds, roomId, true);
-      console.log(result);
       io.to(roomId).emit("message_status", result.chats);
     });
 

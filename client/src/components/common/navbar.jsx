@@ -17,7 +17,7 @@ import {
   commonNavLinkClass,
   inactiveMobileNavLinkClass,
   inactiveNavLinkClass,
-} from "../../config";
+} from "../styles/index";
 
 const Navbar = () => {
   const { auth, logout } = useAuth();
