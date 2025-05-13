@@ -1,17 +1,25 @@
 import React, { useEffect, useState, Suspense } from "react";
-import { useRoutes } from "react-router-dom";
+import { useNavigate, useRoutes } from "react-router-dom";
 import Layout from "../components/layouts/layout";
 import Chat from "../components/chat";
 import Login from "../components/login";
-import { useAuth } from "../hooks/auth";
+import { useAuth } from "../hooks/index";
 import CreateAccount from "../components/create-account";
 
 const CustomRoute = () => {
   const [loading, setLoading] = useState(true);
   const { auth } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(false);
+  }, [auth]);
+
+  useEffect(() => {
+    // if user is logged in
+    if (auth?.token) {
+      navigate("/dashboard");
+    }
   }, [auth]);
 
   // Doctor routes
