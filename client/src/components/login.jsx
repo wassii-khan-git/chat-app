@@ -5,7 +5,7 @@ import * as Yup from "yup";
 import { LoginApi } from "../services/auth/auth.services";
 import { ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/auth";
+import { useAuth } from "../hooks/index";
 import { notify } from "../utils/helper";
 
 // Login account
