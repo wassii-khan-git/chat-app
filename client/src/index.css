@@ -12,3 +12,8 @@
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+/* Optional: Global body styles for better default */
+body {
+  @apply bg-gray-100 font-sans;
+}
