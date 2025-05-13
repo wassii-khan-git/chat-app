@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import SingleChatRoom from "./single-chat-room";
 import io from "socket.io-client";
-import { useAuth } from "../hooks/auth";
+import { useAuth } from "../hooks";
 import {
   CreateRoomApi,
   GetRoomByIdApi,
@@ -12,27 +12,25 @@ import { useQuery } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
 import { notify } from "../utils/helper";
 
-const socket = io("http://localhost:8080");
-
 // Chat
 const Chat = () => {
+  // socket
+  const socketRef = useRef(null);
   // auth
   const { auth } = useAuth();
+  // new room
+  const [isNewRoomCreated, setIsNewRoomCreated] = useState(false);
   // search term
   const [searchTerm, setSearchTerm] = useState("");
   // users data
   const [usersData, setUsersData] = useState([]);
-  // room id
-  const [roomId, setRoomId] = useState("");
-  // new room created
-  const [isNewRoom, setIsNewRoom] = useState(false);
   // messages
   const [messages, setMessages] = useState([]);
   // chat
   const [chatOpenInfo, setChatOpenInfo] = useState([]);
 
   // rooms data
-  const { data: roomsData } = useQuery({
+  const { isLoading: roomsDataLoadingState } = useQuery({
     queryKey: ["rooms", auth?.user?._id],
     queryFn: async () => {
       const response = await GetRoomByIdApi(auth?.user?._id);
@@ -44,33 +42,25 @@ const Chat = () => {
     enabled: !!auth?.user?._id,
   });
 
-  console.log("roomsData", roomsData);
-
-  // console.log("i am data: ", data);
-
-  const createRoom = async (roomInfo, roomId, user) => {
+  const createRoom = async (roomInfo, roomId) => {
     try {
       // create room api
       const response = await CreateRoomApi(roomInfo);
 
-      console.log("room create response:", response);
-
       // join the room
-      socket.emit("join_room", { roomId });
+      socketRef.current.emit("join_room", { roomId });
 
-      setIsNewRoom(true);
-
-      setRoomId(response?.data?._id);
+      // update the state
+      setIsNewRoomCreated(true);
 
       // handle room creation info
       setUsersData((prev) => [
         response?.data?.[0],
         ...prev.filter((item) => item.id !== response?.data?.ownerId),
       ]);
-
+      // update the chat info
       setChatOpenInfo(response?.data?.[0]);
-
-      // setUsersData([]);
+      // empty the search term
       setSearchTerm("");
       // set the search term to empty
     } catch (error) {
@@ -93,73 +83,83 @@ const Chat = () => {
     const roomId = user._id;
     // roominfo
     const id = Math.floor(Math.random() * 1000); // Generates a random number between 0 and 999
+    // create roominfo obj
     const roomInfo = {
       name: auth?.user?.username + "_room" + id,
       members: [user._id],
       ownerId: auth?.user?._id,
     };
-    console.log("I am room info: ", roomInfo);
-
+    // if there room is not created
     if (!user.status) {
       createRoom(roomInfo, roomId, user);
     }
-    // else open the chat
     // join the room
-    socket.emit("join_room", { roomId });
-
-    setIsNewRoom(true);
-
+    socketRef.current.emit("join_room", { roomId });
+    // update the state
+    setIsNewRoomCreated(true);
+    // update the chat open user
     setChatOpenInfo(user);
-
+    // empty the search term
     setSearchTerm("");
   };
 
   // handle delete room
-  const handleDeleteRoom = (id) => {
-    // setCreatedRoomInfo((prev) => prev.filter((item) => item.id !== id));
-    // setIsActiveRoom(false);
-    // setUsersData([]);
+  const handleDeleteRoom = () => {
     notify("Sorry! we are working on this feature", false);
   };
 
   // handle send message
-  const handleSendMessage = (message, roomID) => {
+  const handleSendMessage = (message, roomID, receiver) => {
     console.log(message);
-
-    // const obj = {
-    //   roomId: currentRoomId,
-    //   sender: auth.user._id,
-    //   content: message,
-    //   date: Date.now(),
-    // };
-    // console.log(obj);
-
     // send this message to that room
-    socket.emit("chat", {
+    socketRef.current.emit("chat", {
       roomId: roomID,
       message,
       sender: auth.user._id,
+      receiver,
       date: Date.now(),
     });
   };
 
   const LeaveRoom = (roomId) => {
     // leave the room
-    socket.emit("leave_room", { roomId });
+    socketRef.current.emit("leave_room", { roomId });
     // close the chat
-    setIsNewRoom(false);
+    setIsNewRoomCreated(false);
   };
 
   useEffect(() => {
-    socket.on("chat", ({ message, sender, date }) => {
-      console.log("messages from server", message);
-      if (sender !== auth.user._id) {
-        setMessages((prev) => [...prev, { message, sender, date }]);
-      }
-    });
+    // if auth has token
+    if (auth?.token) {
+      // socket
+      const socket = io("http://localhost:8080", {
+        auth: {
+          token: auth?.token,
+        },
+      });
+      // assign it to the socket ref
+      socketRef.current = socket;
 
-    return () => socket.off("chat");
-  }, []);
+      // chat event
+      socket.on("chat", (messages) => {
+        console.log("messages from server", messages);
+        setMessages((prev) => [...prev, messages]);
+      });
+
+      // chat event
+      socket.on("join_room", (messages) => {
+        console.log("messages from server", messages);
+        // assign to the filter messsages
+        setMessages(messages.length > 0 ? messages : []);
+      });
+      // clean the effect
+      return () => {
+        socket.off("join_room");
+        socket.off("chat");
+        socket.disconnect();
+      };
+    }
+  }, [auth?.token]);
 
   useEffect(() => {
     if (!searchTerm) {
@@ -182,11 +182,6 @@ const Chat = () => {
     return () => clearTimeout(getUsersData);
   }, [searchTerm]);
 
-  console.log("messages with mine, ", messages);
-  // console.log("search term", searchTerm);
-  console.log("user data in chat", usersData);
-  // console.log("auth", auth);
-
   return (
     <div className="p-4 rounded-lg">
       {/* sidebar */}
@@ -207,31 +202,41 @@ const Chat = () => {
             </div>
           </form>
           {/* rooms created */}
-          {usersData.map((item, index = 1) => (
-            <div
-              className="flex justify-between items-center shadow-md rounded-lg mt-4"
-              key={index}
-            >
+          {roomsDataLoadingState ? (
+            <div className="text-center">Loading...</div>
+          ) : (
+            usersData.map((item, index = 1) => (
               <div
-                className="flex justify-center items-start gap-3 p-2 cursor-pointer"
-                onClick={() => handleUserClick(item)}
+                className="flex justify-between items-center shadow-md rounded-lg mt-4"
+                key={index}
               >
-                {/* icon */}
-                <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                  <span className="text-sm font-medium text-gray-600">JD</span>
+                <div
+                  className={`flex justify-center items-start gap-3 p-2 ${
+                    !isNewRoomCreated && "cursor-pointer"
+                  }`}
+                  onClick={() => {
+                    !isNewRoomCreated && handleUserClick(item);
+                  }}
+                >
+                  {/* icon */}
+                  <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                    <span className="text-sm font-medium text-gray-600">
+                      JD
+                    </span>
+                  </div>
+                  {/* name */}
+                  <h2 className="mt-1">
+                    {item?.username || item?.members?.[0]?.username}
+                  </h2>
                 </div>
-                {/* name */}
-                <h2 className="mt-1">
-                  {item?.username || item?.members?.[0]?.username}
-                </h2>
+                <div className="mr-3 transition-all ease-in-out duration-300 hover:bg-gray-200 rounded-full px-2 py-1 cursor-pointer">
+                  <DeleteOutlined onClick={() => handleDeleteRoom(item?._id)} />
+                </div>
               </div>
-              <div className="mr-3 transition-all ease-in-out duration-300 hover:bg-gray-200 rounded-full px-2 py-1 cursor-pointer">
-                <DeleteOutlined onClick={() => handleDeleteRoom(item?._id)} />
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
-        {isNewRoom ? (
+        {isNewRoomCreated ? (
           <>
             {/* chat messages */}
             <SingleChatRoom

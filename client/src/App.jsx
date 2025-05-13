@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import CustomRoute from "./routes";
 import { useEffect } from "react";
 import { apiClient } from "./config";
-import { useAuth } from "./hooks/auth";
+import { useAuth } from "./hooks/index";
 
 // App
 function App() {

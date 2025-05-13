@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { LeftOutlined } from "@ant-design/icons";
+import { useAuth } from "../hooks";
 
 const SingleChatRoom = ({
   roomInfo,
@@ -8,15 +9,20 @@ const SingleChatRoom = ({
   messages,
 }) => {
   const [inputMessage, setInputMessage] = useState("");
-  const [localMessages, setLocalMessages] = useState([]);
+  // const [localMessages, setLocalMessages] = useState([]);
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
+  const { auth } = useAuth();
 
-  // Combine messages and sort
   const allMessages = [
-    ...messages.map((msg) => ({ ...msg, isMine: false })),
-    ...localMessages,
-  ].sort((a, b) => new Date(a.date) - new Date(b.date));
+    // Map over API messages and add 'isMine' property
+    ...messages.map((msg) => ({
+      ...msg,
+      isMine: msg.sender === auth?.user?._id,
+    })),
+  ].sort(
+    (a, b) => new Date(a.date || a.createdAt) - new Date(b.date || b.createdAt)
+  );
 
   // Auto-scroll to bottom
   const scrollToBottom = () => {
@@ -43,17 +49,19 @@ const SingleChatRoom = ({
     if (!inputMessage.trim()) return;
 
     // Create new message
-    const newMessage = {
-      text: inputMessage,
-      date: new Date().toISOString(),
-      isMine: true,
-    };
+    // const newMessage = {
+    //   text: inputMessage,
+    //   date: new Date().toISOString(),
+    //   isMine: true,
+    // };
 
     // Update state
-    setLocalMessages((prev) => [...prev, newMessage]);
-    handleSendMessage(inputMessage, roomInfo._id);
+    // setLocalMessages((prev) => [...prev, newMessage]);
+    handleSendMessage(inputMessage, roomInfo._id, roomInfo?.members?.[0]?._id);
     setInputMessage("");
   };
+
+  console.log("messages", messages);
 
   return (
     <div className="w-full bg-white rounded-xl shadow-lg flex flex-col h-[600px]">
@@ -70,7 +78,9 @@ const SingleChatRoom = ({
             <h2 className="text-lg font-semibold text-white">
               {roomInfo?.members?.[0].username || roomInfo.name}
             </h2>
-            <p className="text-indigo-100 text-sm">Online</p>
+            <p className="text-indigo-100 text-sm">
+              {roomInfo.members?.[0].online ? "online" : "offline"}
+            </p>
           </div>
         </div>
         <div className="flex items-center">
@@ -115,12 +125,18 @@ const SingleChatRoom = ({
                       message.isMine ? "text-indigo-100" : "text-gray-500"
                     }`}
                   >
-                    {new Date(message.date).toLocaleTimeString([], {
+                    {new Date(
+                      message.date || message.createdAt
+                    ).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
+                      hour12: true,
                     })}
                   </span>
                 </div>
+              </div>
+              <div className="text-sm mt-12 ml-2">
+                {message.isMine ? (message.seen ? "seen" : "sent") : ""}
               </div>
             </div>
           ))}

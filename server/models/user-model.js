@@ -20,6 +20,10 @@ const UserSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
+    online: {
+      type: Boolean,
+      default: false,
+    },
     token: {
       type: String,
     },

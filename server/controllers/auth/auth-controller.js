@@ -131,3 +131,27 @@ export const AllUsers = async (req, res) => {
     return res.status(500).json({ success: false });
   }
 };
+
+// get user by id
+export const GetUserById = async (req, res) => {
+  try {
+    const { id } = req.body;
+    // if there is no id
+    if (!id) {
+      return res
+        .status(402)
+        .json({ success: false, message: "Id is required" });
+    }
+    // find the id in the db
+    const user = await UserModel.findById(id);
+    if (!user) {
+      return res
+        .status(403)
+        .json({ success: false, message: "User record not found" });
+    }
+    return res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    console.log("Error");
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
