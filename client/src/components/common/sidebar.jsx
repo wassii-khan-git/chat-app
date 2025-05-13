@@ -1,7 +1,7 @@
 import React from "react";
 import { DeleteOutlined, SearchOutlined } from "@ant-design/icons";
 import SingleChatRoom from "../single-chat-room";
-import { ACCENT_COLOR } from "../../config";
+import { ACCENT_COLOR } from "../styles/index";
 
 const Sidebar = ({
   searchTerm,
