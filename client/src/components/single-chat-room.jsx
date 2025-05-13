@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { LeftOutlined } from "@ant-design/icons";
 import { useAuth } from "../hooks";
+import { ACCENT_COLOR } from "../config";
 
 const SingleChatRoom = ({
   roomInfo,
@@ -66,7 +67,9 @@ const SingleChatRoom = ({
   return (
     <div className="w-full bg-white rounded-xl shadow-lg flex flex-col h-[600px]">
       {/* Chat Header */}
-      <div className="px-6 py-4 bg-indigo-600 flex items-center justify-between">
+      <div
+        className={`px-6 py-4 bg-${ACCENT_COLOR}-500 flex items-center justify-between`}
+      >
         <div className="flex items-center">
           <button
             onClick={() => LeaveRoom(roomInfo._id)}
@@ -113,7 +116,7 @@ const SingleChatRoom = ({
                 <div
                   className={`rounded-lg p-3 shadow-sm ${
                     message.isMine
-                      ? "bg-indigo-600 text-white"
+                      ? `bg-${ACCENT_COLOR}-500 text-white`
                       : "bg-white text-gray-800 border border-gray-200"
                   }`}
                 >
@@ -122,7 +125,9 @@ const SingleChatRoom = ({
                   </p>
                   <span
                     className={`text-xs mt-1 block ${
-                      message.isMine ? "text-indigo-100" : "text-gray-500"
+                      message.isMine
+                        ? `text-${ACCENT_COLOR}-100`
+                        : "text-gray-500"
                     }`}
                   >
                     {new Date(
@@ -170,7 +175,7 @@ const SingleChatRoom = ({
           />
           <button
             onClick={handleSend}
-            className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors duration-200 flex items-center justify-center h-[40px]"
+            className={`px-5 py-2 bg-${ACCENT_COLOR}-500 hover:bg-${ACCENT_COLOR}-700 text-white rounded-lg transition-colors duration-200 flex items-center justify-center h-[40px]`}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

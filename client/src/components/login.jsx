@@ -2,128 +2,183 @@ import React from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { LoginApi } from "../services/auth/auth.services";
+import { LoginApi } from "../services/auth/auth.services"; // Assuming correct path
 import { ToastContainer } from "react-toastify";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/index";
-import { notify } from "../utils/helper";
+import "react-toastify/dist/ReactToastify.css"; // Import default Toastify CSS
+import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../hooks/index"; // Assuming correct path
+import { notify } from "../utils/helper"; // Assuming correct path
+import { ACCENT_COLOR } from "../config";
 
-// Login account
+// Define a WhatsApp-like green accent c
 const Login = () => {
-  const { auth, setAuth } = useAuth();
-  console.log("auth", auth);
-
-  // navigate
+  const { setAuth } = useAuth();
   const navigate = useNavigate();
 
-  // create account mutation
   const { mutate: loginAccount, isPending } = useMutation({
     mutationFn: (values) => LoginApi(values),
     onSuccess: (response) => {
-      console.log("response: ", response);
-      if (response.success) {
-        setAuth({ user: response?.user, token: response?.user?.token });
-        // notify
-        notify(response.message, true);
-        // navigate
+      if (response.success && response.user) {
+        setAuth({ user: response.user, token: response.user.token });
+        notify(response.message || "Login successful!", true);
         setTimeout(() => {
           navigate("/dashboard");
-        }, 3000);
+        }, 2000);
+      } else {
+        // Handle cases where success is true but no user/token, or success is false
+        notify(response.message || "Login failed. Please try again.", false);
       }
     },
     onError: (error) => {
-      console.log("error", error);
-      notify(error.message, false);
+      // Safely access error message
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "An unknown error occurred.";
+      notify(errorMessage, false);
     },
   });
 
   return (
-    <Formik
-      initialValues={{
-        email: "john@gmail.com",
-        password: "123456",
-      }}
-      validationSchema={Yup.object({
-        email: Yup.string()
-          .email("Invalid email format")
-          .required("email is required"),
-        password: Yup.string().required("password is required"),
-      })}
-      onSubmit={(values, { resetForm }) => {
-        loginAccount(values, {
-          onSuccess: () => {
-            resetForm();
-          },
-        });
-      }}
-    >
-      {({
-        values,
-        errors,
-        touched,
-        handleBlur,
-        handleChange,
-        handleSubmit,
-      }) => (
-        <form onSubmit={handleSubmit} className="mt-5">
-          <div className="w-full text-center md:w-[30rem] mx-auto bg-white p-7 rounded-lg shadow-md">
-            {/* Email input */}
-            <div className="w-full mb-4">
-              <input
-                type="text"
-                name="email"
-                id="email"
-                placeholder="Enter email"
-                className={`${
-                  touched.email && errors.email && "border-red-500"
-                } border border-gray-300 rounded-md px-3 py-2 w-full`}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values.email}
-              />
-              {touched.email && errors.email && (
-                <div className="text-left capitalize mt-2 text-sm text-red-500">
-                  {errors.email}
+    <div className="min-h-screen dark:bg-slate-900 flex flex-col justify-center items-center p-4">
+      <div className="w-full max-w-md bg-white dark:bg-slate-800 shadow-2xl rounded-xl p-8 md:p-10">
+        <h1 className="text-3xl font-bold text-center text-slate-700 dark:text-slate-200 mb-8">
+          Sign In
+        </h1>
+        <Formik
+          initialValues={{
+            email: "", // Start with empty or common test email
+            password: "",
+          }}
+          validationSchema={Yup.object({
+            email: Yup.string()
+              .email("Invalid email address")
+              .required("Email is required"),
+            password: Yup.string().required("Password is required"),
+          })}
+          onSubmit={(values, { resetForm }) => {
+            loginAccount(values, {
+              onSettled: () => {
+                resetForm();
+              },
+            });
+          }}
+        >
+          {({
+            values,
+            errors,
+            touched,
+            handleBlur,
+            handleChange,
+            handleSubmit,
+          }) => (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Email input */}
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-slate-600 dark:text-slate-300 mb-2"
+                >
+                  Email Address
+                </label>
+                <input
+                  type="email" // Use type="email" for better semantics and mobile keyboards
+                  name="email"
+                  id="email"
+                  placeholder="you@example.com"
+                  className={`w-full px-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-700 border ${
+                    touched.email && errors.email
+                      ? "border-red-500"
+                      : "border-slate-300 dark:border-slate-600"
+                  } focus:outline-none focus:ring-2 focus:ring-${ACCENT_COLOR}-500 focus:border-transparent placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200`}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  value={values.email}
+                />
+                {touched.email && errors.email && (
+                  <p className="mt-1.5 text-xs text-red-500 dark:text-red-400">
+                    {errors.email}
+                  </p>
+                )}
+              </div>
+
+              {/* Password input */}
+              <div>
+                <div className="flex justify-between items-center mb-2">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-slate-600 dark:text-slate-300"
+                  >
+                    Password
+                  </label>
+                  <Link // Optional: Forgot password link
+                    type="button"
+                    className={`text-xs font-medium text-${ACCENT_COLOR}-600 hover:text-${ACCENT_COLOR}-500 dark:text-${ACCENT_COLOR}-400 dark:hover:text-${ACCENT_COLOR}-300`}
+                    onClick={() =>
+                      notify("Sorry! we are working on this feature", false)
+                    }
+                  >
+                    Forgot password?
+                  </Link>
                 </div>
-              )}
-            </div>
-            {/* password input */}
-            <div className="w-full mb-4">
-              <input
-                type="password"
-                name="password"
-                id="password"
-                placeholder="Enter password"
-                className={`${
-                  touched.password && errors.password && "border-red-500"
-                } border border-gray-300 rounded-md px-3 py-2 w-full`}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                value={values.password}
-              />
-              {touched.password && errors.password && (
-                <div className="text-left capitalize mt-2 text-sm text-red-500">
-                  {errors.password}
-                </div>
-              )}
-            </div>
-            {/* Submit button */}
-            <div className="w-full mt-3">
-              <button
-                type="submit"
-                disabled={isPending}
-                className="bg-indigo-500 text-white px-3 py-2 rounded-md w-full hover:bg-indigo-600 transition duration-200 ease-in-out"
-              >
-                {isPending ? "Loading..." : "Login"}
-              </button>
-            </div>
-          </div>
-          <div>
-            <ToastContainer />
-          </div>
-        </form>
-      )}
-    </Formik>
+                <input
+                  type="password"
+                  name="password"
+                  id="password"
+                  placeholder="••••••••"
+                  className={`w-full px-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-700 border ${
+                    touched.password && errors.password
+                      ? "border-red-500"
+                      : "border-slate-300 dark:border-slate-600"
+                  } focus:outline-none focus:ring-2 focus:ring-${ACCENT_COLOR}-500 focus:border-transparent placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200`}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  value={values.password}
+                />
+                {touched.password && errors.password && (
+                  <p className="mt-1.5 text-xs text-red-500 dark:text-red-400">
+                    {errors.password}
+                  </p>
+                )}
+              </div>
+
+              {/* Submit button */}
+              <div>
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className={`w-full bg-${ACCENT_COLOR}-500 hover:bg-${ACCENT_COLOR}-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-${ACCENT_COLOR}-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-60 disabled:cursor-not-allowed`}
+                >
+                  {isPending ? "Signing In..." : "Sign In"}
+                </button>
+              </div>
+            </form>
+          )}
+        </Formik>
+
+        <p className="mt-8 text-center text-sm text-slate-600 dark:text-slate-400">
+          Don't have an account?{" "}
+          <Link
+            to="/signup" // Adjust to your signup route
+            className={`font-medium text-${ACCENT_COLOR}-600 hover:text-${ACCENT_COLOR}-500 dark:text-${ACCENT_COLOR}-400 dark:hover:text-${ACCENT_COLOR}-300`}
+          >
+            Sign Up
+          </Link>
+        </p>
+      </div>
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored" // Or "light" or "dark" based on your preference
+      />
+    </div>
   );
 };
 

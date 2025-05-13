@@ -1,156 +1,216 @@
-import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/index";
+import React, { useState, useEffect } from "react";
+import { NavLink, useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../../hooks/index"; // Assuming correct path
+import {
+  SunOutlined,
+  MoonOutlined,
+  MenuOutlined,
+  CloseOutlined,
+  LogoutOutlined, // Optional: For logout button
+  UserOutlined, // Optional: For a user avatar placeholder
+} from "@ant-design/icons";
+import {
+  ACCENT_COLOR,
+  activeMobileNavLinkClass,
+  activeNavLinkClass,
+  commonMobileNavLinkClass,
+  commonNavLinkClass,
+  inactiveMobileNavLinkClass,
+  inactiveNavLinkClass,
+} from "../../config";
 
 const Navbar = () => {
-  // auth
   const { auth, logout } = useAuth();
-  // navigate
   const navigate = useNavigate();
-  // state for mobile menu
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  // state for profile dropdown
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== "undefined") {
+      const savedMode = localStorage.getItem("darkMode");
+      return savedMode
+        ? JSON.parse(savedMode)
+        : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (isDarkMode) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+      localStorage.setItem("darkMode", JSON.stringify(isDarkMode));
+    }
+  }, [isDarkMode]);
+
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
-  // nav items
-  const navItems = [
-    { name: "Signup", to: "/signup" },
-    { name: "Login", to: "/login" },
-  ];
-  // handle logout
+  const closeMenu = () => setIsMenuOpen(false);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
+
   const handleLogout = () => {
-    console.log("User logged out");
     logout();
+    closeMenu();
     navigate("/login");
   };
 
-  console.log("auth", auth);
+  const unauthenticatedNavItems = [
+    { name: "Sign Up", to: "/signup", icon: <UserOutlined /> /* Optional */ },
+    {
+      name: "Login",
+      to: "/login",
+      icon: (
+        <LogoutOutlined rotate={-90} />
+      ) /* Optional, rotate for 'login' sense */,
+    },
+  ];
+
+  const authenticatedNavItems = [
+    {
+      name: "Dashboard",
+      to: "/dashboard",
+      icon: <UserOutlined /> /* Example icon */,
+    },
+    // Add other authenticated links here e.g. { name: "Profile", to: "/profile"}
+  ];
+
+  const navItemsToDisplay = auth?.token
+    ? authenticatedNavItems
+    : unauthenticatedNavItems;
 
   return (
-    <nav className="bg-gray-800">
-      <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+    <nav className="bg-white dark:bg-slate-800 shadow-md sticky top-0 z-50">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
-          <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-            {/* Mobile menu button */}
-            <button
-              onClick={toggleMenu}
-              type="button"
-              className="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset"
-              aria-controls="mobile-menu"
-              aria-expanded="false"
+          {/* Logo / Brand Name */}
+          <div className="flex-shrink-0">
+            <Link
+              to={auth?.token ? "/dashboard" : "/"}
+              className={`text-2xl font-bold dark:text-${ACCENT_COLOR}-400 hover:opacity-80 transition-opacity`}
+              onClick={closeMenu}
             >
-              <span className="absolute -inset-0.5" />
-              <span className="sr-only">Open main menu</span>
-              <svg
-                className="block size-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                aria-hidden="true"
-                data-slot="icon"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-                />
-              </svg>
-              <svg
-                className="hidden size-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                aria-hidden="true"
-                data-slot="icon"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18 18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+              <span className={`text-${ACCENT_COLOR}-500 dark:text-white`}>
+                AppLogo
+              </span>
+            </Link>
           </div>
-          <div>
-            <h4 className="text-white capitalize font-bold ">logo</h4>
-          </div>
-          <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-            <div className="hidden sm:ml-6 sm:block">
-              <div className="flex space-x-4">
-                {!auth?.token ? (
-                  navItems.map((item) => (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      className={({ isActive }) =>
-                        isActive
-                          ? "rounded-md px-3 py-2 text-sm font-medium bg-gray-900 text-white"
-                          : "rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
-                      }
-                    >
-                      {item.name}
-                    </NavLink>
-                  ))
-                ) : (
-                  <></>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-            <label className="text-white mr-4 font-bold">
-              {auth?.user?.username}
-            </label>
-            {auth?.token && (
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="rounded-full bg-gray-800 p-1 text-gray-300 hover:text-white focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
-              >
-                Logout
-              </button>
-            )}
 
-            {/* Profile dropdown */}
-            <div className="relative ml-3">
-              <div>
+          {/* Desktop Navigation Links */}
+          <div className="hidden sm:ml-6 sm:flex sm:space-x-1">
+            {" "}
+            {/* Adjusted space-x for icons */}
+            {navItemsToDisplay.map((item) => (
+              <NavLink
+                key={item.name}
+                to={item.to}
+                className={({ isActive }) =>
+                  `${commonNavLinkClass} ${
+                    isActive ? activeNavLinkClass : inactiveNavLinkClass
+                  }`
+                }
+              >
+                {item.icon && <span className="anticon">{item.icon}</span>}
+                <span>{item.name}</span>
+              </NavLink>
+            ))}
+          </div>
+
+          {/* Right side items: Dark Mode, User Info/Logout, Mobile Menu Button */}
+          <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            {/* Dark Mode Toggle */}
+            <button
+              onClick={toggleDarkMode}
+              type="button"
+              aria-label={
+                isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+              }
+              className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-800 focus:ring-emerald-500 transition-colors"
+            >
+              {isDarkMode ? (
+                <SunOutlined className="text-xl" />
+              ) : (
+                <MoonOutlined className="text-xl" />
+              )}
+            </button>
+
+            {auth?.token && (
+              <div className="ml-3 flex items-center">
+                <span className="text-slate-700 dark:text-slate-300 text-sm font-medium mr-3 hidden md:block">
+                  Hi, {auth.user?.username || "User"}
+                </span>
                 <button
                   type="button"
-                  className="relative flex rounded-full bg-gray-800 text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800 focus:outline-hidden"
-                  id="user-menu-button"
-                  aria-expanded="false"
-                  aria-haspopup="true"
+                  onClick={handleLogout}
+                  className={`bg-${ACCENT_COLOR}-500 hover:bg-${ACCENT_COLOR}-600 text-white ${commonNavLinkClass}`}
                 >
-                  <span className="absolute -inset-1.5" />
-                  <span className="sr-only">Open user menu</span>
+                  <LogoutOutlined />
+                  <span>Logout</span>
                 </button>
               </div>
+            )}
+
+            {/* Mobile menu button */}
+            <div className="ml-3 sm:hidden">
+              <button
+                onClick={toggleMenu}
+                type="button"
+                className="relative inline-flex items-center justify-center rounded-md p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white dark:focus:ring-slate-500"
+                aria-controls="mobile-menu"
+                aria-expanded={isMenuOpen}
+              >
+                <span className="sr-only">Open main menu</span>
+                {isMenuOpen ? (
+                  <CloseOutlined className="text-xl" />
+                ) : (
+                  <MenuOutlined className="text-xl" />
+                )}
+              </button>
             </div>
           </div>
         </div>
       </div>
-      {/* Mobile menu */}
+
+      {/* Mobile menu, show/hide based on menu state. */}
       <div
-        className={`${isMenuOpen ? "" : "hidden"} sm:hidden`}
+        className={`${
+          isMenuOpen ? "block" : "hidden"
+        } sm:hidden border-t border-slate-200 dark:border-slate-700`}
         id="mobile-menu"
       >
         <div className="space-y-1 px-2 pt-2 pb-3">
-          {navItems.map((item) => (
+          {navItemsToDisplay.map((item) => (
             <NavLink
-              key={item.to}
+              key={item.name}
               to={item.to}
               className={({ isActive }) =>
-                isActive
-                  ? "block rounded-md px-3 py-2 text-base font-medium bg-gray-900 text-white"
-                  : "block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                `${commonMobileNavLinkClass} ${
+                  isActive
+                    ? activeMobileNavLinkClass
+                    : inactiveMobileNavLinkClass
+                }`
               }
-              onClick={toggleMenu}
-              aria-current={({ isActive }) => (isActive ? "page" : undefined)}
+              onClick={closeMenu} // Close menu on item click
             >
-              {item.name}
+              {item.icon && <span className="anticon">{item.icon}</span>}
+              <span>{item.name}</span>
             </NavLink>
           ))}
+          {/* If logged in, show logout in mobile menu as well */}
+          {auth?.token && (
+            <button
+              onClick={() => {
+                handleLogout();
+                closeMenu();
+              }} // Ensure menu closes
+              className={`${commonMobileNavLinkClass} ${inactiveMobileNavLinkClass} w-full text-left`} // Make it look like other links
+            >
+              <LogoutOutlined />
+              <span>Logout</span>
+            </button>
+          )}
         </div>
       </div>
     </nav>
