@@ -18,3 +18,11 @@ export const GetRoomByIdApi = async (roomId) => {
     throw error.response ? error.response.data : error;
   }
 };
+export const GetMessagesByIdApi = async (roomId) => {
+  try {
+    const response = await apiClient.get(`/chat/messages/${roomId}`);
+    return response.data;
+  } catch (error) {
+    throw error.response ? error.response.data : error;
+  }
+};
