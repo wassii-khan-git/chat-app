@@ -1,3 +1,4 @@
+import { ChatModel } from "../../models/chat-model.js";
 import { RoomModel } from "../../models/room-model.js";
 import { UserModel } from "../../models/user-model.js";
 // create chat rooms
@@ -38,7 +39,7 @@ export const CreateRoom = async (req, res) => {
     // find the members id and popluate the users in the members too
     const room = await RoomModel.find({ members }).populate({
       path: "members",
-      select: "username email _id",
+      select: "username email online _id",
     });
 
     return res
@@ -69,7 +70,7 @@ export const GetRoomById = async (req, res) => {
       $or: [{ members: id }, { ownerId: id }],
     }).populate({
       path: "members",
-      select: "username email _id",
+      select: "username email online _id",
     });
 
     // no room found
@@ -96,5 +97,39 @@ export const GetRoomById = async (req, res) => {
     return res.status(200).json({ success: true, data: rooms });
   } catch (error) {
     return res.status(500).json({ success: false, message: "Hello, world" });
+  }
+};
+
+// get all the messages by room id
+export const GetMessagesByRoomId = async (req, res) => {
+  try {
+    const { id } = req.params;
+    // check for the null
+    if (!id) {
+      return res.status(403).json({
+        success: false,
+        message: "Message, sender or receiver is required",
+      });
+    }
+
+    // store the chat info in the db
+    const chats = await ChatModel.find({ roomId: id });
+
+    if (!chats) {
+      return res.status(402).json({
+        success: false,
+        message: "No chats records found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: chats,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
   }
 };
