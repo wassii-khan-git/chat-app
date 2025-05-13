@@ -67,14 +67,14 @@
 
 ## Scripts
 
-**Client (`client/package.json`):**
+**Client:**
 
 *   `npm run dev`: Starts the Vite development server.
 *   `npm run build`: Builds the React app for production.
 *   `npm run lint`: Lints the codebase.
 *   `npm run preview`: Serves the production build locally for preview.
 
-**Server (`server/package.json`):**
+**Server:**
 
 *   `npm run dev`: Starts the Express server with Nodemon for auto-reloading during development.
 *   `npm run start`: Starts the Express server using Node (typically for production).
@@ -84,11 +84,3 @@
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 Please make sure to update tests as appropriate. (If you add tests later)
-
-## License
-
-[ISC](https://opensource.org/licenses/ISC) (As per your `server/package.json` - update if different)
-
----
-
-This README provides a comprehensive guide for anyone looking to understand, set up, or contribute to your chat application.
