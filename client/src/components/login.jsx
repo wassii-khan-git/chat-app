@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css"; // Import default Toastify CSS
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../hooks/index"; // Assuming correct path
 import { notify } from "../utils/helper"; // Assuming correct path
-import { ACCENT_COLOR } from "../config";
+import { ACCENT_COLOR } from "./styles/index";
 
 // Define a WhatsApp-like green accent c
 const Login = () => {
