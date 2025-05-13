@@ -4,7 +4,6 @@ import { GenerateHash, GenerateToken, VerifyHash } from "../../utils/helper.js";
 // create an account
 export const CreateAccount = async (req, res) => {
   try {
-    console.log("i am body", req.body);
     // get the values
     const { username, email, password } = req.body;
     // username and email is empty
@@ -53,7 +52,6 @@ export const CreateAccount = async (req, res) => {
 // Login Account
 export const Login = async (req, res) => {
   try {
-    console.log("i am body", req.body);
     // get the values
     const { email, password } = req.body;
     // username and email is empty
@@ -113,7 +111,6 @@ export const Login = async (req, res) => {
 export const AllUsers = async (req, res) => {
   try {
     const { searchTerm } = req.query;
-    console.log("searchTerm", searchTerm);
     // if value exists
     let users;
     if (searchTerm) {
