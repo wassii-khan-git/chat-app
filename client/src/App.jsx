@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { apiClient } from "./config";
 import { useAuth } from "./hooks/index";
 
-// App
+// App Component
 function App() {
   const queryClient = new QueryClient();
   const { auth } = useAuth();
