@@ -57,8 +57,10 @@ const Login = () => {
           })}
           onSubmit={(values, { resetForm }) => {
             loginAccount(values, {
-              onSettled: () => {
-                resetForm();
+              onSuccess: (apiResponse) => {
+                if (apiResponse.success) {
+                  resetForm();
+                }
               },
             });
           }}
