@@ -8,7 +8,6 @@ import "react-toastify/dist/ReactToastify.css"; // Import default Toastify CSS
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../hooks/index"; // Assuming correct path
 import { notify } from "../utils/helper"; // Assuming correct path
-import { ACCENT_COLOR } from "./styles/index";
 
 // Define a WhatsApp-like green accent c
 const Login = () => {
@@ -40,8 +39,8 @@ const Login = () => {
   });
 
   return (
-    <div className="min-h-screen dark:bg-slate-900 flex flex-col justify-center items-center p-4">
-      <div className="w-full max-w-md bg-white dark:bg-slate-800 shadow-2xl rounded-xl p-8 md:p-10">
+    <div className="mt-20 dark:bg-slate-900  flex flex-col justify-center items-center p-4">
+      <div className="w-full max-w-md  bg-white dark:bg-slate-800 shadow-2xl rounded-xl p-8 md:p-10">
         <h1 className="text-3xl font-bold text-center text-slate-700 dark:text-slate-200 mb-8">
           Sign In
         </h1>
@@ -58,8 +57,10 @@ const Login = () => {
           })}
           onSubmit={(values, { resetForm }) => {
             loginAccount(values, {
-              onSettled: () => {
-                resetForm();
+              onSuccess: (apiResponse) => {
+                if (apiResponse.success) {
+                  resetForm();
+                }
               },
             });
           }}
@@ -90,7 +91,7 @@ const Login = () => {
                     touched.email && errors.email
                       ? "border-red-500"
                       : "border-slate-300 dark:border-slate-600"
-                  } focus:outline-none focus:ring-2 focus:ring-${ACCENT_COLOR}-500 focus:border-transparent placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200`}
+                  } focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200`}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.email}
@@ -113,7 +114,7 @@ const Login = () => {
                   </label>
                   <Link // Optional: Forgot password link
                     type="button"
-                    className={`text-xs font-medium text-${ACCENT_COLOR}-600 hover:text-${ACCENT_COLOR}-500 dark:text-${ACCENT_COLOR}-400 dark:hover:text-${ACCENT_COLOR}-300`}
+                    className={`text-xs font-medium text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300`}
                     onClick={() =>
                       notify("Sorry! we are working on this feature", false)
                     }
@@ -130,7 +131,7 @@ const Login = () => {
                     touched.password && errors.password
                       ? "border-red-500"
                       : "border-slate-300 dark:border-slate-600"
-                  } focus:outline-none focus:ring-2 focus:ring-${ACCENT_COLOR}-500 focus:border-transparent placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200`}
+                  } focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200`}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.password}
@@ -147,7 +148,7 @@ const Login = () => {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className={`w-full bg-${ACCENT_COLOR}-500 hover:bg-${ACCENT_COLOR}-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-${ACCENT_COLOR}-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-60 disabled:cursor-not-allowed`}
+                  className={`w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-60 disabled:cursor-not-allowed`}
                 >
                   {isPending ? "Signing In..." : "Sign In"}
                 </button>
@@ -160,7 +161,7 @@ const Login = () => {
           Don't have an account?{" "}
           <Link
             to="/signup" // Adjust to your signup route
-            className={`font-medium text-${ACCENT_COLOR}-600 hover:text-${ACCENT_COLOR}-500 dark:text-${ACCENT_COLOR}-400 dark:hover:text-${ACCENT_COLOR}-300`}
+            className={`font-medium text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300`}
           >
             Sign Up
           </Link>

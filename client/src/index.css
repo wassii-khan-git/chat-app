@@ -17,3 +17,8 @@
 body {
   @apply bg-gray-100 font-sans;
 }
+
+/* apply on overall screen for now */
+.dark body {
+  @apply bg-gray-900 text-gray-200;
+}

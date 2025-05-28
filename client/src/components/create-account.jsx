@@ -8,7 +8,6 @@ import "react-toastify/dist/ReactToastify.css"; // Import default Toastify CSS
 import Login from "./login"; // Assuming Login component is in the same directory or correct path
 import { Link } from "react-router-dom";
 import { notify } from "../utils/helper"; // Assuming correct path
-import { ACCENT_COLOR } from "./styles/index";
 
 // Define a consistent accent color (same as Login if desired)
 const CreateAccount = () => {
@@ -50,7 +49,7 @@ const CreateAccount = () => {
   }
 
   return (
-    <div className="min-h-screen dark:bg-slate-900 flex flex-col justify-center items-center p-4">
+    <div className="mt-14 dark:bg-slate-900 flex flex-col justify-center items-center p-4">
       <div className="w-full max-w-md bg-white dark:bg-slate-800 shadow-2xl rounded-xl p-8 md:p-10">
         <h1 className="text-3xl font-bold text-center text-slate-700 dark:text-slate-200 mb-8">
           Create Account
@@ -74,8 +73,6 @@ const CreateAccount = () => {
           })}
           onSubmit={(values, { resetForm }) => {
             createAccount(values, {
-              // This onSuccess is specific to the mutate call,
-              // good for actions like resetForm if the mutation itself doesn't fail network-wise
               onSuccess: (apiResponse) => {
                 if (apiResponse.success) {
                   resetForm();
@@ -110,7 +107,7 @@ const CreateAccount = () => {
                     touched.username && errors.username
                       ? "border-red-500"
                       : "border-slate-300 dark:border-slate-600"
-                  } focus:outline-none focus:ring-2 focus:ring-${ACCENT_COLOR}-500 focus:border-transparent placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200`}
+                  } focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200`}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.username}
@@ -139,7 +136,7 @@ const CreateAccount = () => {
                     touched.email && errors.email
                       ? "border-red-500"
                       : "border-slate-300 dark:border-slate-600"
-                  } focus:outline-none focus:ring-2 focus:ring-${ACCENT_COLOR}-500 focus:border-transparent placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200`}
+                  } focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200`}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.email}
@@ -168,7 +165,7 @@ const CreateAccount = () => {
                     touched.password && errors.password
                       ? "border-red-500"
                       : "border-slate-300 dark:border-slate-600"
-                  } focus:outline-none focus:ring-2 focus:ring-${ACCENT_COLOR}-500 focus:border-transparent placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200`}
+                  } focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent placeholder-slate-400 dark:placeholder-slate-500 text-slate-700 dark:text-slate-200`}
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.password}
@@ -185,7 +182,7 @@ const CreateAccount = () => {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className={`w-full bg-${ACCENT_COLOR}-500 hover:bg-${ACCENT_COLOR}-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-${ACCENT_COLOR}-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-60 disabled:cursor-not-allowed`}
+                  className={`w-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-60 disabled:cursor-not-allowed`}
                 >
                   {isPending ? "Creating Account..." : "Create Account"}
                 </button>
@@ -198,7 +195,7 @@ const CreateAccount = () => {
           Already have an account?{" "}
           <Link
             to="/login" // Adjust to your login route
-            className={`font-medium text-${ACCENT_COLOR}-600 hover:text-${ACCENT_COLOR}-500 dark:text-${ACCENT_COLOR}-400 dark:hover:text-${ACCENT_COLOR}-300`}
+            className={`font-medium text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300`}
           >
             Sign In
           </Link>

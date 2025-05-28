@@ -33,6 +33,9 @@ export const AuthProvider = ({ children }) => {
   // logout
   const logout = () => {
     localStorage.removeItem("auth");
+    localStorage.removeItem("room-status");
+    localStorage.removeItem("darkMode");
+    localStorage.removeItem("current-room-info");
     setUser({
       user: {},
       token: "",

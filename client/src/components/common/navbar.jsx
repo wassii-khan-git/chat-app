@@ -23,6 +23,8 @@ const Navbar = () => {
   const { auth, logout } = useAuth();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // dark mode state management
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== "undefined") {
       const savedMode = localStorage.getItem("darkMode");
@@ -33,6 +35,7 @@ const Navbar = () => {
     return false;
   });
 
+  // Effect to apply dark mode class and save preference
   useEffect(() => {
     if (typeof window !== "undefined") {
       if (isDarkMode) {
@@ -44,19 +47,21 @@ const Navbar = () => {
     }
   }, [isDarkMode]);
 
+  // Function to toggle the mobile menu
+  // and close it when a link is clicked
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
   const closeMenu = () => setIsMenuOpen(false);
-
+  // Function to toggle dark mode
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
   };
-
+  // Function to handle logout
   const handleLogout = () => {
     logout();
     closeMenu();
     navigate("/login");
   };
-
+  // Define navigation items for unauthenticated and authenticated users
   const unauthenticatedNavItems = [
     { name: "Sign Up", to: "/signup", icon: <UserOutlined /> /* Optional */ },
     {
@@ -67,16 +72,16 @@ const Navbar = () => {
       ) /* Optional, rotate for 'login' sense */,
     },
   ];
-
+  // Define navigation items for authenticated users
   const authenticatedNavItems = [
     {
       name: "Dashboard",
       to: "/dashboard",
-      icon: <UserOutlined /> /* Example icon */,
+      icon: <UserOutlined />,
     },
     // Add other authenticated links here e.g. { name: "Profile", to: "/profile"}
   ];
-
+  // Determine which navigation items to display based on authentication state
   const navItemsToDisplay = auth?.token
     ? authenticatedNavItems
     : unauthenticatedNavItems;
@@ -127,7 +132,7 @@ const Navbar = () => {
               aria-label={
                 isDarkMode ? "Switch to light mode" : "Switch to dark mode"
               }
-              className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-800 focus:ring-emerald-500 transition-colors"
+              className="px-2 py-1.5 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-slate-800 focus:ring-emerald-500 transition-colors"
             >
               {isDarkMode ? (
                 <SunOutlined className="text-xl" />
