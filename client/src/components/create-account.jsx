@@ -73,8 +73,6 @@ const CreateAccount = () => {
           })}
           onSubmit={(values, { resetForm }) => {
             createAccount(values, {
-              // This onSuccess is specific to the mutate call,
-              // good for actions like resetForm if the mutation itself doesn't fail network-wise
               onSuccess: (apiResponse) => {
                 if (apiResponse.success) {
                   resetForm();
